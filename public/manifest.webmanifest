@@ -1,0 +1,25 @@
+{
+  "name": "ProGestor - Goleiro Pro",
+  "short_name": "ProGestor",
+  "description": "Gerenciamento pessoal e financeiro para goleiro de aluguel: agenda, partidas, ciclos, pagamentos e recibos.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1220",
+  "theme_color": "#22C7E8",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/assets/aistudio/file_000000008db8820eb8b59ca6e312eb37_7088c206.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

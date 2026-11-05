@@ -1,0 +1,995 @@
+# GOLEIRO PRO
+## PROMPT MESTRE DE CRIAÇÃO DO APLICATIVO COMPLETO
+
+### 1. MISSÃO DO PROJETO
+
+Crie do zero um aplicativo funcional chamado **Goleiro Pro**, destinado ao gerenciamento pessoal e financeiro da atividade de goleiro de aluguel.
+
+Atue como uma equipe multidisciplinar composta por engenheiro de software sênior, arquiteto de sistemas, especialista em banco de dados, desenvolvedor full-stack, designer de produto, especialista em UX/UI mobile-first e profissional de testes e qualidade de software.
+
+O aplicativo deve permitir gerenciar toda a rotina de trabalho: contratantes, partidas, agenda, jogos fixos, pagamentos, ciclos de cobrança, pacotes, cortesias, recibos, relatórios e previsões financeiras.
+
+Não se trata de um marketplace, uma rede social ou uma plataforma pública de contratação de goleiros. É uma ferramenta privada de uso pessoal, voltada à organização de uma atividade profissional recorrente.
+
+O aplicativo será criado em uma nova plataforma. Portanto, não presuma que existem componentes, bancos de dados ou funcionalidades anteriores disponíveis para reutilização. Utilize os requisitos deste documento como especificação funcional e implemente uma arquitetura própria, consistente e funcional.
+
+O funcionamento descrito neste documento deve ser tratado como requisito do produto, não como sugestão opcional.
+
+**Objetivo principal:** entregar um sistema confiável para controlar partidas e dinheiro, com uma interface visualmente agradável, simples de utilizar e adequada ao uso diário em celulares.
+
+### 2. PRINCÍPIOS FUNDAMENTAIS
+
+Priorize, nesta ordem:
+
+1. Integridade dos dados.
+2. Correção das regras financeiras.
+3. Persistência real.
+4. Ausência de duplicações.
+5. Facilidade de utilização.
+6. Rapidez e estabilidade.
+7. Consistência visual.
+8. Refinamento estético.
+
+Regras obrigatórias:
+
+- Todos os registros manuais devem poder ser editados quando sua natureza permitir.
+- Os valores calculados automaticamente não podem ser editados diretamente.
+- Dados financeiros devem possuir histórico rastreável.
+- Alterações de preço não podem modificar retroativamente partidas antigas.
+- Pagamentos antecipados devem ser suportados.
+- Um mesmo pagamento não pode ser utilizado mais de uma vez.
+- Partidas canceladas não podem gerar cobranças indevidas.
+- Cortesias não podem ser contabilizadas como receita.
+- A geração de jogos fixos deve ser idempotente.
+- A emissão de recibos não pode gerar novas transações financeiras.
+- Todas as telas devem compartilhar a mesma fonte de verdade.
+- Nenhuma informação importante deve depender de dados fictícios.
+- Não implementar botões decorativos que não executem suas ações.
+- Não declarar uma funcionalidade concluída sem testar seu comportamento real.
+
+O aplicativo não precisa de autenticação obrigatória nesta primeira versão. Não implementar cadastro público de usuários ou goleiros. Ainda assim, estruturar o acesso aos dados e as operações de escrita de forma segura, sem expor credenciais ou chaves privadas.
+
+### 3. DIREÇÃO VISUAL E IDENTIDADE
+
+O aplicativo deve apresentar uma interface moderna, profissional e visualmente agradável, mas sem exageros futuristas.
+
+Não quero uma interface carregada de efeitos luminosos, gradientes intensos, animações excessivas, elementos de ficção científica ou cards decorativos que ocupem espaço sem agregar informação.
+
+A estética deve transmitir organização, confiança, praticidade e uma identidade sutil relacionada ao futebol.
+
+#### Paleta principal
+
+- Fundo principal: `#0B1220`.
+- Cor de destaque: `#22C7E8`.
+- Superfícies: tons de grafite e azul-escuro.
+- Texto principal: branco suave ou cinza muito claro.
+- Texto secundário: cinza de alto contraste.
+- Sucesso: verde acessível e discreto.
+- Atenção: amarelo ou âmbar legível.
+- Erro: vermelho acessível.
+- Bordas: tons discretos que diferenciem os componentes sem poluir a interface.
+
+#### Estilo
+
+Utilizar:
+
+- Tipografia moderna e legível.
+- Hierarquia clara entre títulos, valores e informações secundárias.
+- Cards somente quando ajudarem a organizar o conteúdo.
+- Espaçamento equilibrado.
+- Ícones consistentes.
+- Botões com estados visuais claros.
+- Formulários simples.
+- Calendários fáceis de navegar.
+- Indicadores financeiros objetivos.
+- Animações discretas e rápidas.
+- Elementos de identidade futebolística sem excesso de ilustrações.
+
+O aplicativo deve parecer um produto cuidadosamente desenvolvido para uso real, não um template genérico de dashboard.
+
+#### Mobile-first
+
+Projetar primeiro para celulares, considerando que o usuário poderá registrar uma partida, receber um pagamento ou consultar um contratante rapidamente, inclusive entre jogos.
+
+Garantir:
+
+- Navegação intuitiva.
+- Botões confortáveis para toque.
+- Formulários curtos e organizados.
+- Acesso rápido às ações frequentes.
+- Boa leitura dos valores financeiros.
+- Layout adaptável a tablets e computadores.
+- Ausência de rolagem horizontal desnecessária.
+- Modais e menus que funcionem adequadamente em telas pequenas.
+
+### 4. ESTRUTURA PRINCIPAL DO APLICATIVO
+
+Criar os seguintes módulos:
+
+1. Hoje.
+2. Agenda.
+3. Partidas.
+4. Jogos Fixos.
+5. Contratantes.
+6. Cobranças.
+7. Pagamentos.
+8. Financeiro.
+9. Relatórios.
+10. Configurações.
+
+Cada módulo deve funcionar de maneira integrada.
+
+Uma alteração em uma partida deve refletir corretamente na agenda, no histórico do contratante, no ciclo de cobrança, nos pagamentos relacionados e nos relatórios.
+
+Uma alteração financeira deve atualizar os saldos, os indicadores e os recibos pertinentes, preservando o histórico das operações anteriores.
+
+Não criar módulos isolados com dados duplicados.
+
+---
+
+### 5. MODELO DE DADOS E ARQUITETURA
+
+Antes de desenvolver as páginas, definir um modelo de dados coerente.
+
+Utilizar uma arquitetura que permita separar:
+
+- Interface.
+- Regras de negócio.
+- Persistência.
+- Cálculos financeiros.
+- Geração de documentos.
+- Validação e testes.
+
+A tecnologia pode ser escolhida de acordo com a plataforma de desenvolvimento, mas deve suportar persistência real, relacionamentos consistentes e operações financeiras confiáveis.
+
+Se utilizar Supabase, configurar corretamente o PostgreSQL, as relações, os índices, as restrições de unicidade e as operações transacionais necessárias.
+
+Entidades conceituais do sistema:
+
+- Contratantes.
+- Partidas.
+- Modelos de jogos fixos.
+- Ocorrências recorrentes.
+- Ciclos de cobrança.
+- Pacotes.
+- Elegibilidade e utilização de cortesias.
+- Cobranças.
+- Pagamentos.
+- Alocações de pagamentos.
+- Créditos.
+- Movimentações de crédito.
+- Ajustes financeiros.
+- Estornos.
+- Recibos.
+- Configurações.
+
+Esses conceitos podem ser representados por tabelas diferentes ou por estruturas equivalentes, desde que os relacionamentos e o histórico sejam preservados.
+
+#### Regras de persistência
+
+- Os dados devem continuar disponíveis após atualizar ou reabrir o aplicativo.
+- Não utilizar apenas estado local da interface como armazenamento definitivo.
+- Não utilizar dados simulados como fonte dos indicadores.
+- Não duplicar registros para alimentar diferentes telas.
+- Implementar validações na camada de negócio e no banco de dados quando aplicável.
+- Utilizar operações atômicas para alterações financeiras relacionadas.
+- Garantir que falhas não deixem registros parcialmente atualizados.
+- Utilizar valores monetários em centavos inteiros ou tipos decimais exatos.
+- Nunca utilizar ponto flutuante binário como fonte definitiva de cálculos financeiros.
+
+### 6. CONTRATANTES
+
+Cada contratante deve possuir:
+
+- Identificador único.
+- Nome.
+- WhatsApp.
+- Observações.
+- Tipo de relação.
+- Forma de pagamento preferencial.
+- Data de criação.
+- Estado ativo ou arquivado.
+
+Tipos de relação:
+
+- Avulso.
+- Fixo/mensal.
+- Pacote.
+
+Métodos de pagamento disponíveis inicialmente:
+
+- Pix.
+- Dinheiro.
+- Transferência.
+- Outros métodos configuráveis.
+
+Permitir cadastrar, consultar, editar, pesquisar e arquivar contratantes.
+
+A página individual do contratante deve mostrar:
+
+- Informações cadastrais.
+- Próximas partidas.
+- Histórico de partidas.
+- Ciclos de cobrança.
+- Pacotes ativos e anteriores.
+- Cortesias.
+- Pagamentos realizados.
+- Créditos disponíveis.
+- Cobranças.
+- Saldo devedor.
+- Recibos emitidos.
+
+Permitir pesquisar por nome e WhatsApp.
+
+Arquivar um contratante não deve apagar partidas, pagamentos, recibos ou históricos financeiros.
+
+### 7. PARTIDAS
+
+Cada partida deve ser um registro individual, com:
+
+- Identificador único.
+- Data.
+- Hora inicial.
+- Hora final.
+- Duração calculada.
+- Contratante.
+- Local.
+- Tipo de partida.
+- Valor de referência.
+- Desconto.
+- Valor final.
+- Observações.
+- Status operacional.
+- Status financeiro.
+- Origem da partida.
+- Vínculo com jogo fixo, quando aplicável.
+- Vínculo com ciclo de cobrança, quando aplicável.
+- Vínculo com pacote ou cortesia, quando aplicável.
+- Data de criação.
+- Data de atualização.
+
+A duração deve ser calculada a partir dos horários. O valor final deve ser calculado a partir do valor de referência, descontos e regras comerciais.
+
+Valores calculados não podem ser editados diretamente. Caso exista um ajuste manual autorizado, registrar o ajuste separadamente, com motivo e histórico.
+
+#### Status operacional
+
+- Prevista.
+- Confirmada.
+- Realizada.
+- Não realizada.
+- Cancelada.
+- Pulada.
+
+#### Status financeiro
+
+- Sem cobrança.
+- Em aberto.
+- Parcialmente pago.
+- Pago.
+
+Os status devem ser independentes.
+
+Uma partida realizada pode estar em aberto. Uma partida futura pode estar paga antecipadamente.
+
+Partidas canceladas, puladas ou não realizadas não devem gerar cobrança automaticamente.
+
+O valor zero não significa necessariamente ausência de cobrança. Uma cortesia pode ter valor de referência positivo, desconto integral e valor final igual a zero.
+
+Permitir criar, consultar, editar e arquivar partidas, preservando a rastreabilidade financeira.
+
+### 8. AGENDA E CONFLITOS DE HORÁRIO
+
+Criar visualizações diária, semanal e mensal.
+
+Permitir navegar entre datas, consultar partidas, criar novos jogos e editar registros existentes.
+
+Vários jogos podem ocorrer no mesmo dia, desde que seus horários não se sobreponham.
+
+Um conflito existe quando outra partida ativa do mesmo goleiro, na mesma data, possui intervalo sobreposto.
+
+Regra de intervalos:
+
+`início_existente < fim_novo AND fim_existente > início_novo`
+
+Exemplos:
+
+- 18:00–19:00 e 20:00–21:00: permitido.
+- 18:00–19:00 e 18:30–19:30: conflito.
+- 18:00–19:00 e 19:00–20:00: permitido.
+
+Partidas canceladas, puladas ou não realizadas não bloqueiam horários.
+
+Ao editar uma partida, ignorar o próprio registro.
+
+Quando houver conflito, informar a data, os horários e o contratante relacionado.
+
+Aplicar validação tanto na interface quanto na camada de negócio. Não permitir que operações concorrentes criem conflitos indevidos.
+
+### 9. JOGOS FIXOS
+
+Jogo fixo é um modelo de recorrência, não uma partida realizada.
+
+Cada ocorrência deve gerar uma partida individual com data, horário, contratante, local, valor e vínculo com o modelo de origem.
+
+Nunca utilizar o nome do jogo como identificador único.
+
+A ocorrência deve possuir uma identidade estável, considerando o identificador do modelo, a data e o horário programado.
+
+A geração deve ser idempotente: executar "Gerar jogos fixos" repetidamente não pode criar duplicatas.
+
+Implementar restrições persistentes para impedir duplicações, inclusive quando duas operações forem executadas simultaneamente.
+
+Se o preço do jogo fixo mudar:
+
+- Partidas antigas mantêm os valores registrados.
+- Novas ocorrências utilizam o preço atualizado.
+- Partidas existentes só mudam mediante ação explícita do usuário.
+
+Permitir alterar somente uma ocorrência ou atualizar o modelo para as próximas ocorrências.
+
+Arquivar ou pausar um jogo fixo não deve apagar seu histórico.
+
+### 10. CICLOS DE COBRANÇA
+
+Ciclos são entidades independentes das partidas.
+
+Um ciclo de quatro jogos representa uma cadência comercial de cobrança, não um limite máximo de partidas em aberto.
+
+Cada ciclo deve ter contratante, quantidade de referência, período ou regra de elegibilidade, partidas vinculadas, estado e totais financeiros calculados.
+
+Exemplo:
+
+Um ciclo de quatro jogos possui três partidas realizadas, cada uma no valor de R$ 30,00.
+
+Resultado:
+
+- Progresso: 3/4.
+- Valor gerado: R$ 90,00.
+- Valor pago: R$ 0,00.
+- Saldo: R$ 90,00.
+
+A contagem deve considerar partidas reais elegíveis, mesmo quando o ciclo for criado posteriormente.
+
+**Partidas reais prevalecem sobre contadores salvos.**
+
+Não utilizar contadores manuais como fonte definitiva de verdade.
+
+Se existirem cinco partidas em aberto em um ciclo de referência de quatro jogos, mostrar 5/4 e calcular os valores das cinco partidas. Não perder a quinta partida nem criar cobranças artificiais.
+
+O ciclo só pode ser considerado financeiramente fechado quando o saldo devido for zero, após considerar pagamentos, créditos, descontos e estornos aplicáveis.
+
+Após o fechamento, a próxima partida elegível deve iniciar um novo ciclo, respeitando a regra comercial configurada.
+
+Manter o histórico dos ciclos fechados.
+
+Permitir alterar o ciclo de uma partida ou vinculá-la a outro ciclo.
+
+Ao alterar o vínculo, recalcular os dois ciclos, preservar a partida e seus pagamentos e impedir duplicações.
+
+Não vincular partidas antigas automaticamente quando houver ambiguidade. Solicitar confirmação.
+
+### 11. PAGAMENTOS E QUITAÇÃO DE PARTIDAS
+
+Este módulo é um dos componentes centrais do aplicativo.
+
+Permitir registrar pagamentos parciais, totais, antecipados e agrupados.
+
+Cada pagamento deve registrar:
+
+- Identificador único.
+- Contratante.
+- Data do recebimento.
+- Valor recebido.
+- Método de pagamento.
+- Observações.
+- Partidas relacionadas.
+- Valor aplicado a cada partida.
+- Eventual crédito gerado.
+- Histórico de alterações e estornos.
+
+O usuário deve poder selecionar manualmente as partidas que deseja quitar.
+
+#### 11.1 Seleção de partidas
+
+Ao registrar um pagamento:
+
+1. Selecionar o contratante.
+2. Exibir as partidas realizadas e futuras desse contratante.
+3. Mostrar data, horário, local, valor e situação financeira.
+4. Permitir selecionar uma ou várias partidas.
+5. Mostrar o total das partidas selecionadas.
+6. Informar o valor recebido.
+7. Escolher o método e a data.
+8. Conferir a distribuição financeira.
+9. Confirmar o pagamento.
+10. Disponibilizar a geração do recibo em PDF.
+
+Partidas já quitadas integralmente não devem ser selecionadas novamente por padrão.
+
+Partidas parcialmente pagas devem apresentar o saldo restante.
+
+Permitir a quitação antecipada de partidas futuras que já estejam cadastradas.
+
+Não exigir que a partida tenha sido realizada para que seja possível pagá-la.
+
+#### 11.2 Exemplo de pagamento antecipado
+
+Um contratante possui três partidas agendadas:
+
+| Data | Valor |
+|---|---:|
+| 04/11/2026 | R$ 30,00 |
+| 11/11/2026 | R$ 30,00 |
+| 18/11/2026 | R$ 30,00 |
+
+No dia 04/11/2026, o contratante paga antecipadamente as três partidas.
+
+O usuário seleciona os dias 4, 11 e 18 e registra o recebimento de R$ 90,00.
+
+Resultado esperado:
+
+- Um pagamento de R$ 90,00.
+- Três partidas vinculadas à transação.
+- As três partidas ficam quitadas.
+- As partidas dos dias 11 e 18 ficam identificadas como pagas antecipadamente.
+- O saldo devido dessas partidas é zero.
+- O pagamento aparece no histórico do contratante.
+- O pagamento aparece no financeiro na data em que o dinheiro foi recebido.
+- Um recibo em PDF pode ser emitido com as três partidas.
+
+Quando as partidas futuras forem realizadas, não gerar novas cobranças nem contabilizar novamente o pagamento.
+
+Esse exemplo define o comportamento esperado, não valores ou datas fixos no código.
+
+#### 11.3 Distribuição de pagamentos
+
+Permitir aplicação manual ou automática.
+
+Na aplicação automática, utilizar as partidas mais antigas em aberto do mesmo contratante, respeitando os saldos disponíveis.
+
+Na aplicação manual, permitir escolher quais partidas serão quitadas e quanto será aplicado a cada uma.
+
+Se o valor recebido for inferior ao total selecionado, exigir uma distribuição coerente e manter os saldos restantes corretos.
+
+Se o valor recebido superar o total selecionado, oferecer a possibilidade de manter o excedente como crédito ou aplicá-lo a outras partidas mediante autorização.
+
+Não permitir que um pagamento seja aplicado duas vezes ou que uma partida receba mais do que o saldo devido.
+
+#### 11.4 Créditos antecipados
+
+Permitir registrar dinheiro recebido antes de haver partidas elegíveis para quitação.
+
+O crédito deve possuir um registro próprio de movimentação e pertencer a um contratante.
+
+Quando uma partida elegível for realizada ou se tornar devida, o crédito poderá ser aplicado automaticamente, conforme as regras configuradas.
+
+Não utilizar o mesmo crédito mais de uma vez.
+
+Distinguir:
+
+- Dinheiro recebido.
+- Valor aplicado.
+- Crédito disponível.
+- Saldo em aberto.
+- Valor estornado.
+
+Nunca contar o crédito como receita de uma partida futura ainda não realizada.
+
+#### 11.5 Histórico
+
+Não apagar pagamentos confirmados sem preservar sua rastreabilidade.
+
+Para corrigir lançamentos, utilizar estornos, reversões ou ajustes auditáveis.
+
+A emissão de um recibo não pode criar um pagamento novo.
+
+### 12. PACOTES E CORTESIAS
+
+Os pacotes devem ter preços próprios, independentes do valor avulso.
+
+Configurações:
+
+- Quantidade de jogos.
+- Valor unitário de referência.
+- Preço fechado.
+- Quantidade de cortesias.
+- Valor de referência da cortesia.
+- Desconto da cortesia.
+- Condição de liberação.
+
+Exemplo:
+
+- Valor avulso: R$ 35,00.
+- Pacote: quatro jogos.
+- Preço fechado: R$ 140,00.
+- Cortesia: quinto jogo.
+- Valor de referência: R$ 35,00.
+- Desconto: R$ 35,00.
+- Valor final: R$ 0,00.
+
+Não substituir o preço do pacote por um preço avulso diferente.
+
+Condições de liberação da cortesia:
+
+- Após pagamento integral.
+- Após completar os jogos contratados.
+- Após pagamento integral ou completar os jogos contratados.
+
+Padrão inicial: após pagamento integral.
+
+Quando uma cortesia estiver disponível, apresentar um alerta para o usuário decidir se a próxima partida será gratuita.
+
+Não criar a cortesia automaticamente.
+
+A cortesia deve ser uma partida real, aparecer no histórico e contar operacionalmente, mas não aumentar a receita ou o saldo a receber.
+
+Não criar automaticamente uma sexta partida gratuita.
+
+O sistema deve distinguir o preço contratado, o valor de referência das partidas, os descontos e os valores efetivamente recebidos. Não atribuir arbitrariamente receita a partidas individuais para forçar a soma a coincidir com o preço do pacote.
+
+### 13. COBRANÇAS
+
+Cobrança é uma camada documental separada das partidas e dos pagamentos.
+
+Permitir editar:
+
+- Título.
+- Descrição.
+- Observações.
+- Mensagem ao contratante.
+- Data de emissão.
+- Data de vencimento, quando aplicável.
+- Método de pagamento.
+- Informações adicionais.
+- Ajustes autorizados.
+- Partidas relacionadas.
+- Ciclo relacionado.
+
+Editar uma cobrança não deve modificar silenciosamente os valores históricos das partidas.
+
+Não duplicar dívidas ao editar ou recriar documentos.
+
+Se houver ajustes financeiros, registrar o motivo e o valor de maneira auditável.
+
+Os valores documentais devem permanecer consistentes com os lançamentos financeiros efetivos.
+
+### 14. RECIBOS EM PDF
+
+Implementar um módulo funcional de emissão de recibos.
+
+O recibo deve ser gerado a partir de um pagamento persistido e de sua distribuição confirmada.
+
+O usuário deve poder gerar o documento após registrar um pagamento, consultar recibos anteriores e reemitir um documento sem criar uma nova transação financeira.
+
+#### 14.1 Informações do recibo
+
+O documento deve conter:
+
+- Identidade visual do Goleiro Pro.
+- Título "RECIBO DE PAGAMENTO".
+- Número único do recibo.
+- Nome do contratante.
+- Data do recebimento.
+- Método de pagamento.
+- Relação individual das partidas pagas.
+- Data de cada partida.
+- Horário inicial e final.
+- Local, quando disponível.
+- Valor aplicado a cada partida.
+- Descontos, quando aplicáveis.
+- Total recebido.
+- Saldo pendente, se houver.
+- Identificação de partidas futuras pagas antecipadamente.
+- Data de emissão.
+
+Quando aplicável, apresentar o valor total por extenso.
+
+Não apresentar uma partida como integralmente paga quando somente parte do seu saldo tiver sido quitada.
+
+#### 14.2 Exemplo de documento
+
+GOLEIRO PRO
+
+RECIBO DE PAGAMENTO Nº GP-000001
+
+Contratante: Nome do contratante
+
+Data do pagamento: 04/11/2026
+
+Método: Pix
+
+| Partida | Horário | Valor pago |
+|---|---|---:|
+| 04/11/2026 | 20h às 21h | R$ 30,00 |
+| 11/11/2026 | 20h às 21h | R$ 30,00 |
+| 18/11/2026 | 20h às 21h | R$ 30,00 |
+| Total recebido | | R$ 90,00 |
+
+Situação: pagamento integral das partidas relacionadas.
+
+As partidas futuras estão identificadas como pagas antecipadamente.
+
+Este documento comprova o recebimento e a destinação do valor às partidas listadas.
+
+O exemplo é ilustrativo. O documento final deve utilizar exclusivamente os dados reais do pagamento.
+
+#### 14.3 Design do PDF
+
+Utilizar formato A4, com fundo branco ou claro, tipografia escura e detalhes discretos em azul-ciano.
+
+O documento deve ser:
+
+- Profissional.
+- Fácil de ler.
+- Adequado para celular.
+- Adequado para impressão.
+- Organizado em uma página quando o conteúdo permitir.
+- Dividido em páginas adicionais quando necessário, sem cortar informações.
+
+Usar valores monetários alinhados, datas claras e espaçamento adequado.
+
+Gerar um nome de arquivo descritivo, por exemplo, `Recibo_GP-000001_Contratante.pdf`, utilizando uma versão segura do nome do contratante.
+
+#### 14.4 Ações disponíveis
+
+Disponibilizar:
+
+- Visualizar recibo.
+- Gerar PDF.
+- Baixar PDF.
+- Compartilhar arquivo quando suportado.
+- Abrir WhatsApp com mensagem preparada.
+
+Mensagem sugerida:
+
+"Olá! Estou enviando o recibo referente ao pagamento das partidas listadas no documento. Guarde este comprovante para sua consulta."
+
+Não afirmar que o arquivo foi enviado quando o usuário ainda precisar confirmar o compartilhamento.
+
+Se o navegador não permitir compartilhar arquivos diretamente, oferecer o download e a abertura do WhatsApp com a mensagem preenchida.
+
+#### 14.5 Histórico e reemissão
+
+Cada recibo deve estar vinculado ao pagamento que o originou.
+
+Gerar novamente o mesmo recibo não pode criar novos pagamentos ou modificar saldos.
+
+Se um pagamento for estornado ou corrigido depois da emissão, manter a rastreabilidade do documento anterior e permitir emitir um documento atualizado.
+
+A correção deve ser registrada no histórico.
+
+### 15. RECIBO COMPARTILHÁVEL DO CONTRATANTE
+
+Criar também uma página somente leitura para consulta financeira do contratante.
+
+Essa página é diferente do PDF: o PDF serve como comprovante de um pagamento específico, enquanto a página apresenta o histórico e a situação financeira atual.
+
+Mostrar:
+
+- Nome do contratante.
+- Partidas individualizadas.
+- Datas e horários.
+- Locais.
+- Valores.
+- Descontos.
+- Status operacional e financeiro.
+- Ciclos.
+- Pacotes.
+- Cortesias.
+- Total gerado.
+- Total pago.
+- Saldo.
+- Créditos disponíveis, quando apropriado.
+
+Adicionar configuração da chave Pix e botão "Copiar Pix".
+
+Exibir a mensagem:
+
+"Após realizar o pagamento, envie o comprovante pelo WhatsApp."
+
+Adicionar botão para abrir o WhatsApp com uma mensagem preenchida.
+
+Se a página for acessível por URL pública, utilizar um identificador ou token de leitura difícil de adivinhar e limitar o acesso aos dados daquele contratante. Não expor dados administrativos.
+
+### 16. DASHBOARD HOJE
+
+Criar uma tela inicial clara e funcional, com:
+
+- Jogos de hoje.
+- Jogos da semana.
+- Recebido no mês.
+- Valor a receber.
+- Valor gerado.
+- Próximos jogos.
+- Cobranças abertas.
+- Pagamentos recentes.
+
+Todos os indicadores devem utilizar os dados reais.
+
+Definir os conceitos:
+
+**Valor gerado:** valores efetivamente cobrados ou gerados pelas partidas elegíveis, sem considerar cortesias integralmente descontadas como receita.
+
+**Recebido no mês:** dinheiro efetivamente recebido no período, considerando estornos de acordo com as regras financeiras adotadas.
+
+**Valor a receber:** saldo das obrigações financeiras elegíveis após pagamentos, descontos, créditos aplicados e estornos.
+
+Não misturar previsões futuras com recebimentos efetivos.
+
+Criar alertas dinâmicos e clicáveis para:
+
+- Partidas próximas.
+- Cobranças vencidas.
+- Contratantes com saldo em aberto.
+- Conflitos.
+- Cortesias disponíveis.
+- Ocorrências fixas que ainda precisam ser geradas.
+
+Não exibir alertas fictícios.
+
+### 17. FINANCEIRO E RELATÓRIOS
+
+Criar filtros por dia, semana, mês e período personalizado.
+
+Disponibilizar filtros por contratante, tipo de partida, ciclo, pacote e status.
+
+Mostrar:
+
+- Partidas realizadas.
+- Partidas canceladas.
+- Valor gerado.
+- Valor recebido.
+- Valor em aberto.
+- Avulsos.
+- Fixos.
+- Pacotes.
+- Cortesias.
+- Créditos.
+- Pagamentos.
+- Estornos.
+- Previsões futuras.
+
+Criar a visão "Quem está devendo", mostrando contratante, WhatsApp, partidas em aberto, saldo devido, último pagamento e partida pendente mais antiga.
+
+Criar busca global por contratante, WhatsApp, partida, local, data, cobrança e pagamento.
+
+Os resultados devem permitir acesso direto aos registros.
+
+As previsões devem distinguir claramente valores futuros estimados de dinheiro já recebido.
+
+### 18. CONFIGURAÇÕES E VERIFICAÇÃO DE CONSISTÊNCIA
+
+Criar configurações para:
+
+- Dados pessoais.
+- Chave Pix.
+- Métodos de pagamento.
+- Preferências de cobrança.
+- Pacotes e cortesias.
+- Jogos fixos.
+- Preferências de relatórios.
+- Identidade visual.
+- Verificação de consistência.
+
+Adicionar o botão "Verificar consistência".
+
+Verificar:
+
+- Partidas realizadas sem ciclo quando obrigatório.
+- Ciclos com contagem incorreta.
+- Partidas duplicadas.
+- Ocorrências recorrentes duplicadas.
+- Conflitos de horário.
+- Pagamentos sem destinação identificável.
+- Cobranças inconsistentes.
+- Saldos incorretos.
+- Partidas vinculadas ao ciclo errado.
+- Créditos duplicados.
+- Créditos aplicados em excesso.
+- Status financeiros incompatíveis.
+- Cortesias contabilizadas incorretamente.
+- Recibos relacionados a pagamentos estornados.
+- Dados arquivados tratados incorretamente.
+
+Para cada problema, mostrar o registro, a explicação, o impacto e a ação recomendada.
+
+Corrigir automaticamente somente quando a solução for inequívoca e segura. Nos demais casos, permitir correção manual com confirmação.
+
+Não apagar históricos financeiros para resolver inconsistências.
+
+Após as correções, executar novamente a verificação.
+
+### 19. NOTIFICAÇÕES E EXCLUSÃO SEGURA
+
+Utilizar notificações temporárias que:
+
+- Desapareçam após aproximadamente três segundos.
+- Possuam botão X.
+- Não se acumulem indefinidamente.
+- Informem sucesso, erro ou aviso.
+- Só apresentem sucesso após confirmar a persistência.
+
+Preferir arquivamento a exclusões destrutivas.
+
+Preservar partidas, pagamentos, recibos e vínculos históricos.
+
+### 20. PWA E CONFIGURAÇÃO TÉCNICA
+
+Configurar o aplicativo como PWA quando a plataforma permitir.
+
+- Nome: Goleiro Pro.
+- Nome curto: Goleiro Pro.
+- Idioma: `pt-BR`.
+- Orientação: `portrait`.
+- Display: `standalone`.
+- Cor do tema: `#22C7E8`.
+- Cor de fundo: `#0B1220`.
+
+O `start_url` e o `scope` devem utilizar os caminhos reais da aplicação.
+
+Implementar manifesto válido e recursos de instalação.
+
+Não declarar suporte offline completo se os dados e a sincronização não forem realmente compatíveis com esse funcionamento.
+
+Formatar datas, horários e valores de acordo com o padrão brasileiro e utilizar o fuso horário configurado para a aplicação.
+
+### 21. TESTES OBRIGATÓRIOS
+
+Executar testes automatizados ou verificações reproduzíveis para todos os cenários abaixo.
+
+1. Duas partidas no mesmo dia, em horários diferentes, são permitidas.
+2. Horários sobrepostos são bloqueados.
+3. Cancelar uma partida libera o horário.
+4. Gerar jogos fixos repetidamente não duplica ocorrências.
+5. Três partidas em um ciclo de quatro mostram 3/4.
+6. Três partidas de R$ 30,00 geram R$ 90,00.
+7. Cinco partidas em um ciclo de referência de quatro mostram 5/4 e calculam o saldo correto.
+8. Um pagamento parcial de R$ 60,00 para três partidas de R$ 30,00 quita duas partidas quando aplicado automaticamente às mais antigas e deixa R$ 30,00 em aberto.
+9. Alterar o preço de um jogo fixo não modifica os preços históricos.
+10. Uma cortesia de R$ 35,00 com desconto de R$ 35,00 resulta em R$ 0,00.
+11. A cortesia não entra na receita nem no saldo a receber.
+12. Um crédito antecipado é aplicado corretamente, sem reutilização.
+13. Partidas existentes antes da criação do ciclo são reconhecidas quando elegíveis.
+14. Editar uma partida ou jogo fixo não cria duplicatas.
+15. Nenhuma tela apresenta problemas críticos de contraste.
+16. Três partidas futuras de R$ 30,00 podem ser quitadas com um único pagamento de R$ 90,00.
+17. A seleção manual permite quitar somente as partidas escolhidas.
+18. O recibo PDF apresenta exatamente as partidas e os valores efetivamente pagos.
+19. Gerar o mesmo PDF várias vezes não cria novas transações.
+20. Pagamentos inferiores ao total selecionado mantêm os saldos corretos.
+21. Pagamentos superiores à dívida preservam o excedente como crédito ou exigem uma decisão explícita.
+22. Partidas futuras pagas antecipadamente não geram novas cobranças quando realizadas.
+23. O estorno de um pagamento atualiza os saldos e preserva o histórico do recibo.
+24. O PDF é legível em celular, computador e impressão.
+25. Editar uma cobrança documental não altera silenciosamente os valores históricos das partidas.
+26. Os indicadores do dashboard correspondem aos registros reais.
+27. Arquivar um contratante preserva seus registros financeiros.
+28. A busca global encontra e abre os registros corretos.
+29. Operações concorrentes não geram partidas duplicadas nem aplicações financeiras inconsistentes.
+30. Todos os dados persistem após atualizar ou reabrir o aplicativo.
+
+Não afirmar que um teste foi aprovado sem executá-lo.
+
+### 22. ORDEM DE DESENVOLVIMENTO
+
+Executar o projeto nas seguintes fases:
+
+**Fase 1: planejamento e arquitetura**
+- Definir o stack.
+- Planejar o modelo de dados.
+- Definir a fonte de verdade financeira.
+- Organizar os módulos e as regras de negócio.
+
+**Fase 2: estrutura visual**
+- Implementar o design system.
+- Criar a navegação.
+- Construir a tela Hoje como referência.
+- Garantir responsividade e legibilidade.
+
+**Fase 3: dados e partidas**
+- Implementar contratantes.
+- Implementar partidas.
+- Implementar agenda e conflitos.
+- Validar persistência.
+
+**Fase 4: recorrência e ciclos**
+- Implementar jogos fixos.
+- Implementar idempotência.
+- Implementar ciclos.
+- Garantir preservação de preços históricos.
+
+**Fase 5: pagamentos**
+- Implementar seleção manual de partidas.
+- Implementar pagamentos parciais e totais.
+- Implementar pagamentos antecipados.
+- Implementar alocações e créditos.
+- Implementar estornos rastreáveis.
+
+**Fase 6: pacotes e cobranças**
+- Implementar preços fechados.
+- Implementar elegibilidade das cortesias.
+- Implementar documentos de cobrança.
+- Validar todos os saldos.
+
+**Fase 7: recibos**
+- Implementar geração de PDF.
+- Implementar histórico de recibos.
+- Implementar download e compartilhamento.
+- Integrar o WhatsApp.
+- Testar reemissão e estornos.
+
+**Fase 8: financeiro e relatórios**
+- Implementar indicadores.
+- Implementar filtros.
+- Implementar busca global.
+- Implementar previsões.
+
+**Fase 9: configurações e consistência**
+- Implementar verificação de integridade.
+- Implementar correções seguras.
+- Validar o histórico financeiro.
+
+**Fase 10: testes finais**
+- Executar todos os cenários.
+- Corrigir erros.
+- Validar responsividade.
+- Verificar a consistência dos dados.
+- Documentar limitações.
+
+Não interromper o desenvolvimento após criar as telas. Cada módulo precisa ter lógica real, persistência e integração com os demais.
+
+### 23. CRITÉRIOS DE ACEITAÇÃO
+
+O Goleiro Pro somente será considerado concluído quando:
+
+- Os dez módulos principais estiverem funcionais.
+- As partidas puderem ser cadastradas e editadas.
+- Os conflitos de agenda forem tratados corretamente.
+- Os jogos fixos forem gerados sem duplicidade.
+- Os ciclos refletirem as partidas reais.
+- Os pagamentos puderem ser vinculados a partidas específicas.
+- As partidas futuras puderem ser pagas antecipadamente.
+- Os créditos e saldos estiverem corretos.
+- Os preços históricos forem preservados.
+- Os pacotes e as cortesias respeitarem suas próprias regras.
+- Os recibos PDF forem gerados a partir de pagamentos reais.
+- Os recibos puderem ser baixados e compartilhados.
+- A emissão de documentos não gerar novas transações.
+- O histórico financeiro for rastreável.
+- Os indicadores forem consistentes entre as telas.
+- A interface for agradável, legível e responsiva.
+- Os testes obrigatórios tiverem sido executados.
+- Não houver problemas críticos conhecidos escondidos por dados simulados.
+
+### 24. ENTREGA FINAL
+
+Ao finalizar, apresentar um relatório contendo:
+
+- Funcionalidades implementadas.
+- Estrutura de dados criada.
+- Regras financeiras implementadas.
+- Fluxo de pagamentos antecipados.
+- Geração e compartilhamento de recibos.
+- Testes executados e resultados.
+- Limitações ainda existentes.
+- Configurações externas necessárias.
+- Problemas conhecidos que ainda precisam de correção.
+
+Distinguir claramente funcionalidades concluídas, testadas e pendentes.
+
+### INSTRUÇÃO FINAL PARA A IA DE DESENVOLVIMENTO
+
+Crie o Goleiro Pro do zero, seguindo integralmente esta especificação.
+
+Não transforme o projeto em um protótipo visual. Não simplifique as regras financeiras. Não remova requisitos para acelerar a entrega.
+
+Priorize uma arquitetura confiável, uma experiência de uso agradável e cálculos financeiros corretos.
+
+O visual deve ser moderno e profissional, mas sem futurismo exagerado. A interface deve ser confortável para quem utilizará o aplicativo frequentemente.
+
+O sistema deve funcionar como uma ferramenta real de gestão de partidas, pagamentos e relacionamento com contratantes.
+
+Comece definindo a arquitetura e o modelo de dados. Depois implemente os módulos de forma integrada, valide as regras de negócio e execute os testes.
+
+**Resultado esperado: um Goleiro Pro completo, criado do zero, com identidade visual consistente, agenda confiável, controle financeiro preciso, pagamentos antecipados por partida, recibos em PDF e histórico rastreável, pronto para uso pessoal.**

@@ -1,0 +1,8 @@
+{
+  "name": "Goleiro Pro",
+  "description": "Gerenciamento pessoal e financeiro para goleiro de aluguel: agenda, partidas, ciclos, pagamentos e recibos em PDF.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
